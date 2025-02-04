@@ -11,7 +11,6 @@ resource "aws_s3_bucket_versioning" "bnetz_s3_bucket_versioning" {
   }
 }
 
-
 # Create S3 bucket for MWAA
 resource "aws_s3_bucket" "mwaa_bucket" {
   bucket = "hack-the-future-mwaa-${var.environment}"
