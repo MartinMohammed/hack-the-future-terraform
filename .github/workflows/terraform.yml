@@ -8,7 +8,7 @@ on:
       - "**/*.tfvars"
       - ".github/workflows/terraform.yml"
   pull_request:
-    branches: ["main", "master"]
+    branches: ["main"]
     paths:
       - "**/*.tf"
       - "**/*.tfvars"
