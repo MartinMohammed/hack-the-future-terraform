@@ -93,15 +93,13 @@ jobs:
               body: output
             })
 
+      - name: Terraform Apply
         # use manual approval to approve the deployment before applying
-      - uses: trstringer/manual-approval@v1
+        uses: trstringer/manual-approval@v1
         with:
           secret: ${{ github.TOKEN }}
-          approvers: user1,user2,org-team1
+          approvers: MartinMohammed
           minimum-approvals: 1
-          issue-title: "Deploying v1.3.5 to prod from staging"
-          issue-body: "Please approve or deny the deployment of version v1.3.5."
-
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve
+          issue-title: "Deploying to prod from dev"
+          issue-body: "Please approve or deny the deployment to prod from dev"
+          run: terraform apply -auto-approve
