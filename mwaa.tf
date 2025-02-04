@@ -13,7 +13,7 @@ module "mwaa" {
   max_workers           = 25
   webserver_access_mode = "PUBLIC_ONLY" # Change to PRIVATE_ONLY for production
 
-  source_bucket_name   = aws_s3_bucket.mwaa_bucket.id
+  source_bucket_name   = "mwaa-bucket-${var.environment}"
   requirements_s3_path = "requirements.txt"
   plugins_s3_path      = "plugins.zip"
 
