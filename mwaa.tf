@@ -4,7 +4,7 @@ module "mwaa" {
 
   name              = "hack-the-future-mwaa"
   airflow_version   = "2.7.2" # Using a more recent version
-  environment_class = "mw1.medium"
+  environment_class = "mw1.small"
 
   vpc_id             = data.aws_vpc.default.id
   private_subnet_ids = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]

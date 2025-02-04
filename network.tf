@@ -1,7 +1,7 @@
 # Create private subnets in the default VPC
 resource "aws_subnet" "private_subnet_1" {
   vpc_id            = data.aws_vpc.default.id
-  cidr_block        = "172.31.48.0/20" # Make sure this doesn't overlap with existing subnets
+  cidr_block        = "172.31.128.0/20"
   availability_zone = "${var.aws_region}a"
 
   tags = {
@@ -12,7 +12,7 @@ resource "aws_subnet" "private_subnet_1" {
 
 resource "aws_subnet" "private_subnet_2" {
   vpc_id            = data.aws_vpc.default.id
-  cidr_block        = "172.31.64.0/20" # Make sure this doesn't overlap with existing subnets
+  cidr_block        = "172.31.144.0/20"
   availability_zone = "${var.aws_region}b"
 
   tags = {

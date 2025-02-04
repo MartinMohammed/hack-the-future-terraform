@@ -21,7 +21,7 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Project     = "GameJam"
+      Project     = "hack-the-future"
       Environment = var.environment
       Terraform   = "true"
       ManagedBy   = "Terraform"

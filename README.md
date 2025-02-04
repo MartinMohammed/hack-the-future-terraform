@@ -1,6 +1,6 @@
-# Game Jam Infrastructure
+# Hack The Future Infrastructure
 
-This directory contains the Terraform configuration for deploying and managing the AWS infrastructure for the Game Jam project.
+This directory contains the Terraform configuration for deploying and managing the AWS infrastructure for the Hack The Future project.
 
 ## Prerequisites
 
