@@ -25,6 +25,7 @@ resource "aws_s3_bucket_versioning" "mwaa_bucket_versioning" {
   }
 }
 
+
 # Block public access to the MWAA bucket
 resource "aws_s3_bucket_public_access_block" "mwaa_bucket_public_access_block" {
   bucket = aws_s3_bucket.mwaa_bucket.id
