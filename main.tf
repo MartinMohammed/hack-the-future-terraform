@@ -11,7 +11,7 @@ terraform {
     dynamodb_table = "terraform-state-lock-dynamo"
     bucket         = "terraform-s3-state-hack-the-future-hackathon"
     key            = "terraform.tfstate"
-    region         = var.region
+    region         = "us-west-2"
   }
 }
 
