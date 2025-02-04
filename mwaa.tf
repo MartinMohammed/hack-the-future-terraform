@@ -15,6 +15,7 @@ module "mwaa" {
 
   source_bucket_arn = aws_s3_bucket.mwaa_bucket.arn
 
+
   logging_configuration = {
     dag_processing_logs = {
       enabled   = true
