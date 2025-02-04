@@ -28,28 +28,3 @@ provider "aws" {
     }
   }
 }
-
-
-resource "aws_s3_bucket" "tf_course" {
-
-  bucket = "terraform-s3-state-hack-the-future-hackathon"
-}
-
-resource "aws_s3_bucket_versioning" "versioning" {
-  bucket = aws_s3_bucket.tf_course.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_dynamodb_table" "dynamodb-terraform-state-lock" {
-  name           = "terraform-lock-table"
-  hash_key       = "LockID"
-  read_capacity  = 20
-  write_capacity = 20
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-}
