@@ -13,9 +13,9 @@ module "mwaa" {
   max_workers           = 25
   webserver_access_mode = "PUBLIC_ONLY" # Change to PRIVATE_ONLY for production
 
-  source_bucket_name   = "mwaa-bucket-${var.environment}"
-  requirements_s3_path = "requirements.txt"
-  plugins_s3_path      = "plugins.zip"
+  source_bucket_name = "mwaa-bucket-${var.environment}"
+  #   requirements_s3_path = "requirements.txt"
+  #   plugins_s3_path      = "plugins.zip"
 
   logging_configuration = {
     dag_processing_logs = {
