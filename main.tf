@@ -7,11 +7,11 @@ terraform {
   }
 
   backend "s3" {
-    encrypt        = true
-    dynamodb_table = "terraform-state-lock-dynamo"
-    bucket         = "terraform-s3-state-hack-the-future-hackathon"
-    key            = "terraform.tfstate"
-    region         = "us-west-2"
+    encrypt = true
+    # dynamodb_table = "terraform-state-lock-dynamo"
+    bucket = "terraform-s3-state-hack-the-future-hackathon"
+    key    = "terraform.tfstate"
+    region = "us-west-2"
   }
 }
 
@@ -43,7 +43,7 @@ resource "aws_s3_bucket_versioning" "versioning" {
 }
 
 resource "aws_dynamodb_table" "dynamodb-terraform-state-lock" {
-  name           = "terraform-state-lock-dynamo"
+  name           = "terraform-lock-table"
   hash_key       = "LockID"
   read_capacity  = 20
   write_capacity = 20
