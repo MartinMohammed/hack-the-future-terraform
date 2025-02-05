@@ -32,9 +32,9 @@ resource "aws_iam_role_policy" "mwaa_s3_policy" {
           "s3:ListBucket",
           "s3:PutObject*"
         ]
+        # restrict access to the bucket
         Resource = [
-          "arn:aws:s3:::${module.mwaa.source_bucket_arn}",
-          "arn:aws:s3:::${module.mwaa.source_bucket_arn}/*"
+          "${aws_s3_bucket.bnetz_s3_bucket.arn}/*"
         ]
       }
     ]
