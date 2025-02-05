@@ -93,7 +93,7 @@ resource "aws_iam_role" "snowflake_role" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::000000000000:root" # Replace with Snowflake's AWS account ID
+          AWS = "arn:aws:iam::807507401405:root" # Replace with Snowflake's AWS account ID
         }
         Action = "sts:AssumeRole"
         Condition = {
