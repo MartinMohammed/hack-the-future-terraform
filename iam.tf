@@ -1,7 +1,7 @@
 # Create IAM inline policy for S3 access
 resource "aws_iam_role_policy" "mwaa_s3_policy" {
   name = "mwaa-s3-policy"
-  role = module.mwaa.execution_role_arn
+  role = module.mwaa.mwaa_role_arn
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -25,7 +25,7 @@ resource "aws_iam_role_policy" "mwaa_s3_policy" {
 # Create IAM inline policy for AWS Batch access
 resource "aws_iam_role_policy" "mwaa_batch_policy" {
   name = "mwaa-batch-policy"
-  role = module.mwaa.execution_role_arn
+  role = module.mwaa.mwaa_role_arn
 
   policy = jsonencode({
     Version = "2012-10-17"
