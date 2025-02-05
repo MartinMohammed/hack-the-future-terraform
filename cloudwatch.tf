@@ -6,6 +6,6 @@ resource "aws_cloudwatch_log_group" "main_api_gw" {
 }
 
 # one cloudwatch log group for each lambda function
-resource "aws_cloudwatch_log_group" "handler_lambda" {
-  name = "/aws/lambda/${aws_lambda_function.handler.function_name}"
+resource "aws_cloudwatch_log_group" "tariff_handler_lambda" {
+  name = "/aws/lambda/${aws_lambda_function.tariff_handler.function_name}"
 }
