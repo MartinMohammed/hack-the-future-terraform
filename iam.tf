@@ -95,12 +95,12 @@ resource "aws_iam_role" "snowflake_role" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::888577042993:user/ds5v0000-s" # Replace with Snowflake's AWS account ID
+          AWS = "arn:aws:iam::888577042993:user/ncyu0000-s" # Replace with Snowflake's AWS account ID
         }
         Action = "sts:AssumeRole"
         Condition = {
           StringEquals = {
-            "sts:ExternalId" = "QM14047_SFCRole=4_QKoG+LiCqnSnvkGuBotJo6TWobo=" # Replace with Snowflake's external ID
+            "sts:ExternalId" = "YG35686_SFCRole=3_3vO8Qx00v4BL8AxZWaedrM6A+hE=" # Replace with Snowflake's external ID
           }
         }
       }
