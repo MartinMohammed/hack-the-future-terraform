@@ -38,7 +38,7 @@ resource "aws_iam_role_policy" "mwaa_s3_policy" {
         # restrict access to the bucket
         Resource = [
           "arn:aws:s3:::${aws_s3_bucket.bnetz_s3_bucket.id}/*",
-          "arn:aws:s3:::${module.mwaa.aws_s3_bucket_name}/*"
+          "arn:aws:s3:::${module.hack-the-future-mwaa.aws_s3_bucket_name}/*"
         ]
       }
     ]
