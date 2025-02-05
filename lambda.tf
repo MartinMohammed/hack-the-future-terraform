@@ -1,13 +1,14 @@
 resource "aws_lambda_function" "tariff_handler" {
-  function_name = "tariff-handler"
+  function_name = "tariff_handler"
+  filename      = "src/tariff_handler.zip"
 
-  # s3_bucket = aws_s3_bucket.lambda_bucket.id
-  #   s3_key    = aws_s3_object.tariff_handler.key
+  handler     = "index.handler"
+  runtime     = "nodejs18.x"
+  memory_size = 1024
+  timeout     = 300
 
-  runtime = "python3.11"
-  handler = "function.handler"
-
-  #   source_code_hash = data.archive_file.tariff_handler.output_base64sha256
+  # This will force Terraform to update the Lambda when the zip content changes
+  source_code_hash = filebase64sha256("src/tariff_handler.zip")
 
   role = aws_iam_role.handler_lambda_exec.arn
 }

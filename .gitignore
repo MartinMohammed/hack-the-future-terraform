@@ -38,4 +38,9 @@ Thumbs.db
 
 # Local environment variables
 .env*
-!.env.example 
+!.env.example
+
+# Lambda related
+src/*.zip
+**/lambdas/**/node_modules/
+**/lambdas/**/dist/ 

@@ -33,10 +33,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          terraform_version: "1.7.0"
+          node-version: "18"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -45,6 +45,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+
+      - name: Build Lambda Functions
+        run: |
+          # Make script executable and run it
+          chmod +x ./build-lambdas.sh
+          ./build-lambdas.sh
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
 
       - name: Terraform Format
         id: fmt
@@ -61,10 +72,13 @@ jobs:
 
       - name: Terraform Plan
         id: plan
+        env:
+          TF_VAR_lambda_version: ${{ env.LAMBDA_VERSION }}
         run: terraform plan -no-color
         continue-on-error: true
 
       - name: Terraform Apply
-        # don't apply changes on pull requests and only on main branch if new changes are pushed e.x. a new PR is created
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && github.event_name != 'pull_request'
+        env:
+          TF_VAR_lambda_version: ${{ env.LAMBDA_VERSION }}
         run: terraform apply -auto-approve
