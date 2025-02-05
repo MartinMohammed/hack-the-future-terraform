@@ -12,6 +12,9 @@ module "mwaa" {
   min_workers           = 1
   max_workers           = 25
   webserver_access_mode = "PUBLIC_ONLY" # Change to PRIVATE_ONLY for production
+  create_iam_role       = False
+  execution_role_arn    = aws_iam_role.mwaa_execution_role.arn
+
 
 
   source_bucket_name   = "mwaa-bucket-${var.environment}"
