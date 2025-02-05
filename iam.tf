@@ -49,7 +49,7 @@ resource "aws_iam_role_policy" "mwaa_batch_policy" {
 # Create IAM inline policy for Snowflake S3 access
 resource "aws_iam_role_policy" "snowflake_s3_policy" {
   name = "snowflake-s3-policy"
-  role = module.mwaa.mwaa_role_name
+  role = aws_iam_role.snowflake_role.name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -108,10 +108,4 @@ resource "aws_iam_role" "snowflake_role" {
   tags = {
     Purpose = "Snowflake Integration"
   }
-}
-
-# Attach the Snowflake S3 policy to the Snowflake role
-resource "aws_iam_role_policy_attachment" "snowflake_policy_attachment" {
-  role       = aws_iam_role.snowflake_role.name
-  policy_arn = aws_iam_role_policy.snowflake_s3_policy.name
 }
