@@ -86,26 +86,22 @@ resource "aws_iam_role_policy" "snowflake_s3_policy" {
 resource "aws_iam_role" "snowflake_role" {
   name = "snowflake-role"
 
-  # Trust relationship policy allowing Snowflake to assume this role
+  # Trust relationship policy allowing temporary access (to be restricted later)
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::80750740-1405:root" # Replace with Snowflake's AWS account ID
+          AWS = "*" # Temporarily allow all principals - CHANGE THIS LATER!
         }
         Action = "sts:AssumeRole"
-        Condition = {
-          StringEquals = {
-            "sts:ExternalId" = "PLACEHOLDER_EXTERNAL_ID" # Replace with Snowflake's external ID
-          }
-        }
       }
     ]
   })
 
   tags = {
     Purpose = "Snowflake Integration"
+    Note    = "Update trust relationship with Snowflake account details"
   }
 }
