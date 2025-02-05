@@ -43,4 +43,4 @@ Thumbs.db
 # Lambda related
 src/*.zip
 **/lambdas/**/node_modules/
-**/lambdas/**/dist/ 
+**/lambdas/**/src/*.js 
