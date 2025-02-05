@@ -10,7 +10,10 @@ resource "aws_iam_role" "mwaa_execution_role" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          Service = "airflow-env.amazonaws.com"
+          Service = [
+            "airflow.amazonaws.com",
+            "airflow-env.amazonaws.com"
+          ]
         }
       }
     ]
