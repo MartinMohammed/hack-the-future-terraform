@@ -100,7 +100,7 @@ resource "aws_iam_role" "snowflake_role" {
         Action = "sts:AssumeRole"
         Condition = {
           StringEquals = {
-            "sts:ExternalId" = "QM14047_SFCRole=4_pJhOtF6R6GfOFL5pHtQDjKff4es=" # Replace with Snowflake's external ID
+            "sts:ExternalId" = "QM14047_SFCRole=4_QKoG+LiCqnSnvkGuBotJo6TWobo=" # Replace with Snowflake's external ID
           }
         }
       }
