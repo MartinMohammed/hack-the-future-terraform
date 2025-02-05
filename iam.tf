@@ -93,7 +93,7 @@ resource "aws_iam_role" "snowflake_role" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::807507401405:root" # Replace with Snowflake's AWS account ID
+          AWS = "arn:aws:iam::80750740-1405:root" # Replace with Snowflake's AWS account ID
         }
         Action = "sts:AssumeRole"
         Condition = {
@@ -113,5 +113,5 @@ resource "aws_iam_role" "snowflake_role" {
 # Attach the Snowflake S3 policy to the Snowflake role
 resource "aws_iam_role_policy_attachment" "snowflake_policy_attachment" {
   role       = aws_iam_role.snowflake_role.name
-  policy_arn = aws_iam_role_policy.snowflake_s3_policy.id
+  policy_arn = aws_iam_role_policy.snowflake_s3_policy.name
 }
