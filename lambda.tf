@@ -2,7 +2,7 @@ resource "aws_lambda_function" "tariff_handler" {
   function_name = "tariff-handler"
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
-  s3_key    = aws_s3_object.tariff_handler.key
+  #   s3_key    = aws_s3_object.tariff_handler.key
 
   runtime = "python3.11"
   handler = "function.handler"
