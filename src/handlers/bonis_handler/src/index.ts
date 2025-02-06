@@ -43,6 +43,25 @@ export const handler = async (event: any): Promise<any> => {
   const tariffIdRaw = event.queryStringParameters?.tariff_id;
   console.log("Tariff ID received from event:", tariffIdRaw);
 
+  // Extract and validate the optional 'limit' query parameter
+  const limitRaw = event.queryStringParameters?.limit;
+  let limitClause = "";
+  if (limitRaw !== undefined && limitRaw !== null && limitRaw !== "") {
+    const limitNumber = Number(limitRaw);
+    if (isNaN(limitNumber) || limitNumber <= 0) {
+      console.error("Invalid limit parameter provided:", limitRaw);
+      return {
+        statusCode: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: "Invalid limit parameter" }),
+      };
+    }
+    console.log("Using limit parameter:", limitNumber);
+    limitClause = `LIMIT ${limitNumber}`;
+  }
+
   // Prepare SQL literal for tariff_id. Default to "NULL"
   let tariffIdSqlLiteral = "NULL";
   if (tariffIdRaw !== undefined && tariffIdRaw !== null && tariffIdRaw !== "") {
@@ -112,7 +131,8 @@ export const handler = async (event: any): Promise<any> => {
       ON b.BONUS_DURATION_ID = bd.BONUS_DURATION_ID
     JOIN test_values tv 
       ON (tv.tariff_id IS NULL OR t.TARIFF_ID = tv.tariff_id) -- Optional filtering
-    ORDER BY t.TARIFF_ID, b.BONUS_NAME;
+    ORDER BY t.TARIFF_ID, b.BONUS_NAME
+    ${limitClause};
   `;
 
   console.log("Prepared SQL query:");

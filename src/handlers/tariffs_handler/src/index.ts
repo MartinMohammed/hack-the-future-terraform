@@ -70,6 +70,25 @@ export const handler = async (event: any): Promise<any> => {
   const city = qs.city ? `'${qs.city}'` : "NULL";
   const zip = qs.zip ? `'${qs.zip}'` : "NULL";
 
+  // Extract and validate optional 'limit' query parameter
+  const limitRaw = qs.limit;
+  let limitClause = "";
+  if (limitRaw !== undefined && limitRaw !== null && limitRaw !== "") {
+    const limitNumber = Number(limitRaw);
+    if (isNaN(limitNumber) || limitNumber <= 0) {
+      console.error("Invalid limit parameter provided:", limitRaw);
+      return {
+        statusCode: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: "Invalid limit parameter" }),
+      };
+    }
+    console.log("Using limit parameter:", limitNumber);
+    limitClause = `LIMIT ${limitNumber}`;
+  }
+
   // Build the SQL query dynamically using the provided values (or SQL NULL if not provided)
   const sql = `
 WITH test_values AS (
@@ -114,7 +133,8 @@ JOIN test_values tv
     AND (COALESCE(tv.street, a.STREET) = a.STREET)
     AND (COALESCE(tv.city, a.CITY) = a.CITY)
     AND (COALESCE(tv.zip, a.ZIP) = a.ZIP)
-ORDER BY t.TARIFF_ID;
+ORDER BY t.TARIFF_ID
+${limitClause};
   `;
 
   console.log("Executing Snowflake query:");
