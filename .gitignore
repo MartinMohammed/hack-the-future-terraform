@@ -41,10 +41,23 @@ Thumbs.db
 !.env.example
 
 # Lambda related
-src/**/*.zip
+dist/**/*.zip
+**/lambdas/**/dist/*.js 
 
+**/layers/**/dist/*.js 
 
-**/lambdas/**/src/*.js 
+# Build outputs
+dist/
+node_modules/
 
-**/layers/**/src/*.js 
+# TypeScript output
+**/*.js
+**/*.js.map
+**/*.d.ts
+
+# Keep source TypeScript files
+!**/*.ts
+
+# Lambda and Layer builds
+dist/**/*.zip
 

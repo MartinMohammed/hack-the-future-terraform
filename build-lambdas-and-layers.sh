@@ -1,74 +1,85 @@
 #!/bin/bash
 
-# Exit on any error
-set -e
+# Create necessary directories
+mkdir -p dist/handlers
+mkdir -p dist/layers
 
-# Directory containing all lambda functions and layers
-LAMBDAS_DIR="lambdas"
-LAYERS_DIR="layers"
-
-# Create src directory structure if it doesn't exist
-mkdir -p src/handlers
-mkdir -p src/layers
-
-# Function to build TypeScript projects
-build_typescript_project() {
-    local dir=$1
-    local type=$2  # "lambda" or "layer"
-    local base_name=$(basename "$dir")
+# Function to build and package Lambda handlers
+build_handlers() {
+    echo "Building Lambda handlers..."
     
-    echo "Building $type in $dir"
+    # Loop through each handler directory
+    for handler_dir in src/handlers/*; do
+        if [ -d "$handler_dir" ]; then
+            handler_name=$(basename "$handler_dir")
+            echo "Processing handler: $handler_name"
+            
+            # Create temporary build directory
+            mkdir -p "dist/handlers/tmp/$handler_name"
+            
+            # Copy package.json if it exists
+            if [ -f "$handler_dir/package.json" ]; then
+                cp "$handler_dir/package.json" "dist/handlers/tmp/$handler_name/"
+                
+                # Install dependencies
+                (cd "dist/handlers/tmp/$handler_name" && npm install --production)
+            fi
+            
+            # Copy all .js, .ts files
+            cp -r "$handler_dir"/*.{js,ts} "dist/handlers/tmp/$handler_name/" 2>/dev/null || true
+            
+            # Create zip file
+            (cd "dist/handlers/tmp/$handler_name" && zip -r "../../$handler_name.zip" .)
+            
+            echo "✅ Handler $handler_name packaged successfully"
+        fi
+    done
     
-    # Navigate to the directory
-    cd "$dir"
-    
-    # Install all dependencies (both prod and dev)
-    echo "Installing dependencies..."
-    npm ci
-    
-    # Build the project
-    echo "Building..."
-    npm run build
-    
-    if [ "$type" = "lambda" ]; then
-        # Lambda specific packaging - include the compiled code
-        mkdir -p "../src/handlers/${base_name}"
-        cp -r ./src/*.js "../src/handlers/${base_name}/"
-        
-        # Create zip file in the handlers directory
-        cd "../src/handlers/${base_name}"
-        zip -r "../${base_name}.zip" .
-        cd ../../../
-        
-    else
-        # Layer specific packaging - include the compiled code and node_modules
-        mkdir -p dist/nodejs
-        cp -r ./src/*.js dist/nodejs/
-        cp -r ./node_modules dist/nodejs/
-        
-        # Create zip file in the layers directory
-        cd dist
-        zip -r "../../../src/layers/${base_name}.zip" nodejs
-        cd ..
-    fi
-    
-    # Clean up
-    rm -rf dist
-    rm -rf node_modules
-    
-    # Go back to root
-    cd ../../
-    
-    echo "Finished building ${base_name}"
-    echo "-----------------------------------"
+    # Clean up temporary build directory
+    rm -rf "dist/handlers/tmp"
 }
 
-# Build the utils layer
-echo "Building utils layer..."
-build_typescript_project "${LAYERS_DIR}/util-layer" "layer"
+# Function to build and package Lambda layers
+build_layers() {
+    echo "Building Lambda layers..."
+    
+    # Loop through each layer directory
+    for layer_dir in src/layers/*; do
+        if [ -d "$layer_dir" ]; then
+            layer_name=$(basename "$layer_dir")
+            echo "Processing layer: $layer_name"
+            
+            # Create temporary build directory with nodejs structure
+            mkdir -p "dist/layers/tmp/$layer_name/nodejs"
+            
+            # Copy package.json if it exists
+            if [ -f "$layer_dir/package.json" ]; then
+                cp "$layer_dir/package.json" "dist/layers/tmp/$layer_name/nodejs/"
+                
+                # Install dependencies
+                (cd "dist/layers/tmp/$layer_name/nodejs" && npm install --production)
+            fi
+            
+            # Copy all .js, .ts files
+            cp -r "$layer_dir/src"/*.{js,ts} "dist/layers/tmp/$layer_name/nodejs/" 2>/dev/null || true
+            
+            # Create zip file
+            (cd "dist/layers/tmp/$layer_name" && zip -r "../../$layer_name.zip" .)
+            
+            echo "✅ Layer $layer_name packaged successfully"
+        fi
+    done
+    
+    # Clean up temporary build directory
+    rm -rf "dist/layers/tmp"
+}
 
-# Build the tariff handler lambda
-echo "Building tariff handler lambda..."
-build_typescript_project "${LAMBDAS_DIR}/tariff_handler" "lambda"
+# Clean up previous builds
+echo "Cleaning up previous builds..."
+rm -rf dist/handlers/* dist/layers/*
 
-echo "Build completed successfully!" 
+# Execute build functions
+build_handlers
+build_layers
+
+echo "✨ All handlers and layers have been built and packaged successfully!"
