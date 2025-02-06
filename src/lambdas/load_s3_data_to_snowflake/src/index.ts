@@ -70,7 +70,7 @@ export const handler = async (event: any): Promise<any> => {
   // Build the SQL query dynamically using a transaction wrapper so that
   // all the MERGE statements are executed as one atomic operation.
   const sql = `
-    BEGIN TRANSACTION;
+    BEGIN
 
     MERGE INTO DDS.DDS_SCHEMA.ADDRESSES a
     USING (
@@ -251,7 +251,7 @@ export const handler = async (event: any): Promise<any> => {
         INSERT (ADDRESS_ID, TARIFF_ID, DATE_COLLECTED)
         VALUES (src.ADDRESS_ID, src.TARIFF_ID, src.DATE_COLLECTED);
         
-    COMMIT;
+    END;
   `;
 
   console.log("Executing Snowflake query:");
