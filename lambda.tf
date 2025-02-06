@@ -86,7 +86,7 @@ resource "aws_lambda_function" "bonis_handler" {
 resource "aws_lambda_function" "load_s3_data_to_snowflake" {
   function_name = "load_s3_data_to_snowflake"
   # use local file
-  filename = "${path.module}/dist/handlers/load_s3_data_to_snowflake.zip"
+  filename = "${path.module}/dist/lambdas/load_s3_data_to_snowflake.zip"
 
   handler     = "index.handler"
   runtime     = "nodejs18.x"
@@ -98,7 +98,7 @@ resource "aws_lambda_function" "load_s3_data_to_snowflake" {
     }
   }
 
-  source_code_hash = filebase64sha256("${path.module}/dist/handlers/load_s3_data_to_snowflake.zip")
+  source_code_hash = filebase64sha256("${path.module}/dist/lambdas/load_s3_data_to_snowflake.zip")
 
   layers = [
     aws_lambda_layer_version.lambda_utils_layer.arn
