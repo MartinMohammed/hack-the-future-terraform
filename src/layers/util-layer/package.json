@@ -1,7 +1,7 @@
 {
   "name": "util-layer",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "utils.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"
@@ -15,5 +15,6 @@
   "devDependencies": {
     "@types/snowflake-sdk": "^1.6.20",
     "typescript": "^5.0.0"
-  }
+  },
+  "types": "shared_utils.d.ts"
 }
