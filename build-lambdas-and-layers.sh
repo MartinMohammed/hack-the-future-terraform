@@ -86,10 +86,18 @@ build_layers() {
         npm install --production
       )
 
-      # Package the layer so that the zip file includes everything.
+      # IMPORTANT: Create a top-level "nodejs" folder and move all files into it.
       (
         cd "$temp_layer_dir"
-        zip -r "../../../layers/$layer_name.zip" .
+        mkdir -p nodejs
+        # Move everything (except the nodejs folder itself) into nodejs/
+        for f in *; do
+          if [ "$f" != "nodejs" ]; then
+            mv "$f" nodejs/
+          fi
+        done
+        # Package the contents of the temp directory; the zip will have a top-level "nodejs" folder.
+        zip -r "../../../layers/$layer_name.zip" nodejs
       )
 
       echo "✅ Layer '$layer_name' packaged successfully"

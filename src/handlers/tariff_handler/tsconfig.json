@@ -28,7 +28,7 @@
     "module": "commonjs" /* Specify what module code is generated. */,
     "baseUrl": ".",
     "paths": {
-      "/opt/nodejs/*": ["../../layers/util-layer/dist/*"]
+      "/opt/nodejs/*": ["../../layers/util-layer/src/*"]
     },
 
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
