@@ -3,22 +3,9 @@ import { SnowflakeRepository, getSecret } from "shared_utils"; // ensure 'shared
 
 const snowflakeSecretName = process.env.SNOWFLAKE_SECRET_NAME;
 const awsRegion = process.env.AWS_REGION;
-const logicalDate = process.env.LOGICAL_DATE; // Expected format: "YYYY-MM-DD"
-if (!logicalDate) {
-  console.error("Missing LOGICAL_DATE environment variable.");
-  throw new Error("Missing LOGICAL_DATE environment variable");
-}
-const [loadYear, loadMonth, loadDay] = logicalDate.split("-");
 
 console.log(`Environment AWS_REGION: ${awsRegion}`);
 console.log(`Environment SNOWFLAKE_SECRET_NAME: ${snowflakeSecretName}`);
-console.log("Parsed load date:", loadYear, loadMonth, loadDay);
-
-const loadDate = logicalDate;
-console.log("Load date parameter:", loadDate);
-
-const stagePath = `@hack_the_future_data_stage/staging/yyyy=${loadYear}/mm=${loadMonth}/dd=${loadDay}/telekom.json`;
-console.log("Stage path set to:", stagePath);
 
 type SnowflakeSecret = {
   account: string;
@@ -67,12 +54,29 @@ export const handler = async (event: any): Promise<any> => {
   const repo = new SnowflakeRepository(secret);
   console.log("SnowflakeRepository initialized for the handler.");
 
+  // NEW: Extract the logical date from the event payload instead of process.env
+  const logicalDate = event.LOGICAL_DATE;
+  if (!logicalDate) {
+    console.error("Missing LOGICAL_DATE in event payload.");
+    return {
+      statusCode: 400,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "Missing LOGICAL_DATE in event payload",
+      }),
+    };
+  }
+  const [loadYear, loadMonth, loadDay] = logicalDate.split("-");
+  const stagePath = `@hack_the_future_data_stage/staging/yyyy=${loadYear}/mm=${loadMonth}/dd=${loadDay}/telekom.json`;
+  console.log("Logical date from event:", logicalDate);
+  console.log("Stage path set to:", stagePath);
+
   // Build the SQL query dynamically using a transaction wrapper so that
   // all the MERGE statements are executed as one atomic operation.
   const sql = `
     BEGIN
 
-    MERGE INTO DDS.DDS_SCHEMA.ADDRESSES a
+    MERGE INTO ADDRESSES a
     USING (
         SELECT DISTINCT
             t.$1:address:street::string AS STREET,
@@ -87,7 +91,7 @@ export const handler = async (event: any): Promise<any> => {
         INSERT (STREET, CITY, ZIP)
         VALUES (src.STREET, src.CITY, src.ZIP);
 
-    MERGE INTO DDS.DDS_SCHEMA.PROVIDERS p
+    MERGE INTO PROVIDERS p
     USING (
         SELECT DISTINCT
             tarif.value:provider::string AS PROVIDER_NAME,
@@ -100,7 +104,7 @@ export const handler = async (event: any): Promise<any> => {
         INSERT (PROVIDER_NAME, PROVIDER_SOURCE)
         VALUES (src.PROVIDER_NAME, src.PROVIDER_SOURCE);
 
-    MERGE INTO DDS.DDS_SCHEMA.CONNECTIVITY_TYPES c
+    MERGE INTO CONNECTIVITY_TYPES c
     USING (
         SELECT DISTINCT tarif.value:type::string AS CONNECTIVITY_NAME
         FROM ${stagePath} t,
@@ -111,7 +115,7 @@ export const handler = async (event: any): Promise<any> => {
         INSERT (CONNECTIVITY_NAME)
         VALUES (src.CONNECTIVITY_NAME);
 
-    MERGE INTO DDS.DDS_SCHEMA.TARIFFS t
+    MERGE INTO TARIFFS t
     USING (
         SELECT
             p.PROVIDER_ID,
@@ -124,11 +128,11 @@ export const handler = async (event: any): Promise<any> => {
             tarif.value:contract_details:dl_max::float AS DOWNLOAD_RATE
         FROM ${stagePath} t,
              LATERAL FLATTEN(input => t.$1:tarifs) tarif
-        JOIN DDS.DDS_SCHEMA.PROVIDERS p
+        JOIN PROVIDERS p
           ON p.PROVIDER_NAME = tarif.value:provider::string
-        JOIN DDS.DDS_SCHEMA.CONNECTIVITY_TYPES c
+        JOIN CONNECTIVITY_TYPES c
           ON c.CONNECTIVITY_NAME = tarif.value:type::string
-        WHERE t.$1:date::date = DATE '${loadDate}'
+        WHERE t.$1:date::date = DATE '${logicalDate}'
     ) src
     ON t.TARIFF_NAME = src.TARIFF_NAME
     AND t.PROVIDER_ID = src.PROVIDER_ID
@@ -160,7 +164,7 @@ export const handler = async (event: any): Promise<any> => {
             src.DOWNLOAD_RATE
         );
 
-    MERGE INTO DDS.DDS_SCHEMA.BONUS_DURATION bd
+    MERGE INTO BONUS_DURATION bd
     USING (
         SELECT DISTINCT 
             boni.value:duration::int AS BONUS_DURATION
@@ -168,14 +172,14 @@ export const handler = async (event: any): Promise<any> => {
              LATERAL FLATTEN(input => t.$1:tarifs) tarif,
              LATERAL FLATTEN(input => tarif.value:bonis) boni
         WHERE boni.value:duration IS NOT NULL
-          AND t.$1:date::date = DATE '${loadDate}'
+          AND t.$1:date::date = DATE '${logicalDate}'
     ) src
     ON bd.BONUS_DURATION = src.BONUS_DURATION  -- Check if duration already exists
     WHEN NOT MATCHED THEN
         INSERT (BONUS_DURATION)
         VALUES (src.BONUS_DURATION);
 
-    MERGE INTO DDS.DDS_SCHEMA.BONUSES b
+    MERGE INTO BONUSES b
     USING (
         SELECT DISTINCT
             boni.value:name::string AS BONUS_NAME,
@@ -184,9 +188,9 @@ export const handler = async (event: any): Promise<any> => {
         FROM ${stagePath} t,
              LATERAL FLATTEN(input => t.$1:tarifs) tarif,
              LATERAL FLATTEN(input => tarif.value:bonis) boni
-        JOIN DDS.DDS_SCHEMA.BONUS_DURATION bd
+        JOIN BONUS_DURATION bd
           ON bd.BONUS_DURATION = boni.value:duration::int
-        WHERE t.$1:date::date = DATE '${loadDate}'
+        WHERE t.$1:date::date = DATE '${logicalDate}'
     ) src
     ON b.BONUS_NAME = src.BONUS_NAME 
     AND b.BONUS_VALUE = src.BONUS_VALUE  -- Check if bonus already exists
@@ -194,7 +198,7 @@ export const handler = async (event: any): Promise<any> => {
         INSERT (BONUS_NAME, BONUS_VALUE, BONUS_DURATION_ID)
         VALUES (src.BONUS_NAME, src.BONUS_VALUE, src.BONUS_DURATION_ID);
 
-    MERGE INTO DDS.DDS_SCHEMA.TARIFF_WITH_BONUSES tb
+    MERGE INTO TARIFF_WITH_BONUSES tb
     USING (
         SELECT 
             tarr.TARIFF_ID,
@@ -207,11 +211,11 @@ export const handler = async (event: any): Promise<any> => {
             FROM ${stagePath} t,
                  LATERAL FLATTEN(input => t.$1:tarifs) tarif,
                  LATERAL FLATTEN(input => tarif.value:bonis) boni
-            WHERE t.$1:date::date = DATE '${loadDate}'
+            WHERE t.$1:date::date = DATE '${logicalDate}'
         ) f
-        JOIN DDS.DDS_SCHEMA.TARIFFS tarr
+        JOIN TARIFFS tarr
           ON tarr.TARIFF_NAME = f.TARIFF_NAME
-        JOIN DDS.DDS_SCHEMA.BONUSES b
+        JOIN BONUSES b
           ON b.BONUS_NAME = f.BONUS_NAME
          AND b.BONUS_VALUE = f.BONUS_VALUE
     ) src
@@ -221,7 +225,7 @@ export const handler = async (event: any): Promise<any> => {
         INSERT (TARIFF_ID, BONUS_ID)
         VALUES (src.TARIFF_ID, src.BONUS_ID);
 
-    MERGE INTO DDS.DDS_SCHEMA.OFFER o
+    MERGE INTO OFFER o
     USING (
         SELECT
             a.ADDRESS_ID,
@@ -237,11 +241,11 @@ export const handler = async (event: any): Promise<any> => {
             FROM ${stagePath} t,
                  LATERAL FLATTEN(input => t.$1:tarifs) tarif
         ) f
-        JOIN DDS.DDS_SCHEMA.ADDRESSES a
+        JOIN ADDRESSES a
           ON a.STREET = f.STREET
          AND a.CITY  = f.CITY
          AND a.ZIP   = f.ZIP
-        JOIN DDS.DDS_SCHEMA.TARIFFS tarr
+        JOIN TARIFFS tarr
           ON tarr.TARIFF_NAME = f.TARIFF_NAME
     ) src
     ON o.ADDRESS_ID = src.ADDRESS_ID
