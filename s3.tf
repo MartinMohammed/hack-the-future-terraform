@@ -32,3 +32,12 @@ resource "aws_s3_bucket_public_access_block" "lambda_bucket" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
+
+# create s3 bucket for hosting static content for the web app
+resource "aws_s3_bucket" "web_app_bucket" {
+  bucket = "bnetz-web-app-bucket"
+}
+
+
+
