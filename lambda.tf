@@ -13,7 +13,6 @@ resource "aws_lambda_function" "tariffs_handler" {
     }
   }
 
-
   source_code_hash = filebase64sha256("${path.module}/dist/handlers/tariffs_handler.zip")
 
   layers = [
