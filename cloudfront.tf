@@ -8,6 +8,8 @@ resource "aws_cloudfront_distribution" "web_app_distribution" {
     }
   }
 
+  default_root_object = "index.html"
+
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
