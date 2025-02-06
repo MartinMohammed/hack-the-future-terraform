@@ -102,7 +102,7 @@ export const handler = async (event: any): Promise<any> => {
   // Prepare the SQL query dynamically using the provided tariff ID
   const sql = `
     SELECT * FROM tariff_data t
-    WHERE t.TARRIF_ID = ${tariffIdNumber}
+    WHERE t.TARIFF_ID = ${tariffIdNumber}
   `;
   console.log("Prepared SQL query:");
   console.log(sql);

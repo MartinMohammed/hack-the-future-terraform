@@ -31,6 +31,9 @@ resource "aws_apigatewayv2_stage" "dev" {
   }
 }
 
+# ---------------------------------------------------------------------------------------------------------------------
+# tariffs handler
+# ---------------------------------------------------------------------------------------------------------------------
 # forward requests to the lambda function
 resource "aws_apigatewayv2_integration" "tariffs_handler" {
   api_id = aws_apigatewayv2_api.main.id
@@ -57,7 +60,9 @@ resource "aws_lambda_permission" "trigger_tariffs_handler_permission" {
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
 }
 
-
+# ---------------------------------------------------------------------------------------------------------------------
+# tariff handler
+# --------------------------------------------------------------------------------------------------------------------- 
 # forward requests to the lambda function
 resource "aws_apigatewayv2_integration" "tariff_handler" {
   api_id = aws_apigatewayv2_api.main.id
@@ -81,3 +86,11 @@ resource "aws_lambda_permission" "trigger_tariff_handler_permission" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
 }
+
+# ---------------------------------------------------------------------------------------------------------------------
+# bonis handler
+# ---------------------------------------------------------------------------------------------------------------------
+
+
+
+
