@@ -41,6 +41,14 @@ resource "aws_s3_bucket" "web_app_bucket" {
   bucket = "bnetz-web-app-bucket"
 }
 
+# enable static website hosting
+resource "aws_s3_bucket_website_configuration" "web_app_bucket" {
+  bucket = aws_s3_bucket.web_app_bucket.id
+  index_document {
+    suffix = "index.html"
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "web_app_bucket" {
   bucket = aws_s3_bucket.web_app_bucket.id
 

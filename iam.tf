@@ -136,4 +136,3 @@ resource "aws_iam_role_policy_attachment" "snowflake_secret_manager_policy" {
   role       = aws_iam_role.handler_lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
 }
-
