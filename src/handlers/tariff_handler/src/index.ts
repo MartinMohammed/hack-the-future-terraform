@@ -18,7 +18,9 @@ type SnowflakeSecret = {
 
 console.log("Starting to retrieve Snowflake secret...");
 // Instead of using top-level await, start the retrieval and save the Promise
-const secretPromise: Promise<SnowflakeSecret> = getSecret(snowflakeSecretName);
+const secretPromise: Promise<SnowflakeSecret> = getSecret(
+  snowflakeSecretName as string
+);
 secretPromise
 
   .then(() => {
