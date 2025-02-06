@@ -86,17 +86,18 @@ build_layers() {
         npm install --production
       )
 
-      # IMPORTANT: Create a top-level "nodejs" folder and move all files into it.
+      # Create the correct folder structure for module resolution:
+      # /opt/nodejs/node_modules/shared_utils
       (
         cd "$temp_layer_dir"
-        mkdir -p nodejs
-        # Move everything (except the nodejs folder itself) into nodejs/
+        mkdir -p nodejs/node_modules/shared_utils
+        # Move all files (except the new nodejs folder) into nodejs/node_modules/shared_utils
         for f in *; do
           if [ "$f" != "nodejs" ]; then
-            mv "$f" nodejs/
+            mv "$f" nodejs/node_modules/shared_utils/
           fi
         done
-        # Package the contents of the temp directory; the zip will have a top-level "nodejs" folder.
+        # Package the contents; the resulting zip will have a top-level "nodejs" folder.
         zip -r "../../../layers/$layer_name.zip" nodejs
       )
 
