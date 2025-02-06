@@ -29,5 +29,5 @@ variable "availability_zones" {
 variable "snowflake_stage_ref" {
   description = "Snowflake stage reference"
   type        = string
-  default     = "DDS.PUBLIC.HACK_THE_FUTURE_DATA_STAGE"
+  default     = "@DDS.PUBLIC.HACK_THE_FUTURE_DATA_STAGE"
 }
