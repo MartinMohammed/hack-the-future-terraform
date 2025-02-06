@@ -82,6 +82,7 @@ resource "aws_iam_role_policy" "snowflake_s3_policy" {
   })
 }
 
+
 # Create IAM role for Snowflake
 resource "aws_iam_role" "snowflake_role" {
   name = "snowflake-role"
