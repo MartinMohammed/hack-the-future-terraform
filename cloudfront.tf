@@ -19,15 +19,11 @@ resource "aws_cloudfront_distribution" "web_app_distribution" {
     max_ttl                = 3600
     forwarded_values {
       query_string = false
-      headers      = ["Host"]
       cookies {
         forward = "none"
       }
     }
   }
-
-  # Optionally, specify a default root object if needed:
-  # default_root_object = "index.html"
 
   viewer_certificate {
     cloudfront_default_certificate = true
