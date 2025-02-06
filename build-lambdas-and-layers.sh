@@ -22,7 +22,7 @@ build_typescript_project() {
     # Navigate to the directory
     cd "$dir"
     
-    # Install dependencies
+    # Install all dependencies (both prod and dev)
     echo "Installing dependencies..."
     npm ci
     
@@ -30,36 +30,29 @@ build_typescript_project() {
     echo "Building..."
     npm run build
     
-    # Prune dev dependencies
-    npm prune --production
-    
-    # Create dist folder and copy files
-    echo "Creating distribution..."
-    mkdir -p dist/nodejs  # For layers, we need a nodejs directory
-    
     if [ "$type" = "lambda" ]; then
-        # Lambda specific packaging
-        cp -r ./src/*.js dist/
-        cp -r ./node_modules dist/
+        # Lambda specific packaging - include the compiled code
+        mkdir -p "../src/handlers/${base_name}"
+        cp -r ./src/*.js "../src/handlers/${base_name}/"
         
         # Create zip file in the handlers directory
-        echo "Creating zip file..."
-        cd dist
-        zip -r "../../../src/handlers/${base_name}.zip" .
+        cd "../src/handlers/${base_name}"
+        zip -r "../${base_name}.zip" .
+        cd ../../../
+        
     else
-        # Layer specific packaging
+        # Layer specific packaging - include the compiled code and node_modules
+        mkdir -p dist/nodejs
         cp -r ./src/*.js dist/nodejs/
         cp -r ./node_modules dist/nodejs/
         
         # Create zip file in the layers directory
-        echo "Creating zip file..."
         cd dist
         zip -r "../../../src/layers/${base_name}.zip" nodejs
+        cd ..
     fi
     
     # Clean up
-    echo "Cleaning up..."
-    cd ..
     rm -rf dist
     rm -rf node_modules
     
@@ -70,20 +63,12 @@ build_typescript_project() {
     echo "-----------------------------------"
 }
 
-# Build Lambda functions
-echo "Building Lambda functions..."
-for lambda_dir in "$LAMBDAS_DIR"/*/ ; do
-    if [ -d "$lambda_dir" ]; then
-        build_typescript_project "$lambda_dir" "lambda"
-    fi
-done
+# Build the utils layer
+echo "Building utils layer..."
+build_typescript_project "${LAYERS_DIR}/util-layer" "layer"
 
-# Build Layers
-echo "Building Layers..."
-for layer_dir in "$LAYERS_DIR"/*/ ; do
-    if [ -d "$layer_dir" ]; then
-        build_typescript_project "$layer_dir" "layer"
-    fi
-done
+# Build the tariff handler lambda
+echo "Building tariff handler lambda..."
+build_typescript_project "${LAMBDAS_DIR}/tariff_handler" "lambda"
 
-echo "All Lambda functions and Layers built successfully!" 
+echo "Build completed successfully!" 
