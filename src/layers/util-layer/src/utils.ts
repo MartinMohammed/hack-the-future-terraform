@@ -94,3 +94,62 @@ try {
   await snowflakeRepo.disconnect();
 }
 */
+
+// utils.ts
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
+
+// Determine the AWS region from the environment (with a fallback if necessary)
+const awsRegion = process.env.AWS_REGION || "us-east-1";
+
+// Initialize the Secrets Manager client once per runtime
+const secretsClient = new SecretsManagerClient({ region: awsRegion });
+
+/**
+ * Retrieves and parses a secret from AWS Secrets Manager.
+ *
+ * @param secretName - The name or ARN of the secret to retrieve.
+ * @returns A promise that resolves to the parsed secret value.
+ *
+ * @throws An error if the secret name is not defined or if there is an error retrieving or parsing the secret.
+ */
+export async function getSecret(secretName: string): Promise<any> {
+  if (!secretName) {
+    console.error("Secret name is not defined");
+    throw new Error("Secret name is not defined");
+  }
+
+  console.log(`Retrieving secret for secret name: ${secretName}`);
+  const command = new GetSecretValueCommand({ SecretId: secretName });
+  try {
+    const response = await secretsClient.send(command);
+
+    // Log a sanitized version of the response to avoid printing sensitive values
+    console.log(
+      "Secret retrieval response:",
+      JSON.stringify({
+        SecretString: response.SecretString ? "***" : undefined,
+        SecretBinary: response.SecretBinary ? "***" : undefined,
+      })
+    );
+
+    if (response.SecretString) {
+      const secretValue = JSON.parse(response.SecretString);
+      console.log("Secret parsed successfully.");
+      return secretValue;
+    } else if (response.SecretBinary) {
+      const buff = Buffer.from(response.SecretBinary, "base64");
+      const secretValue = buff.toString("ascii");
+      console.log("Secret binary converted successfully.");
+      return secretValue;
+    } else {
+      console.error("No secret data found in the response.");
+      throw new Error("No secret data found in the response.");
+    }
+  } catch (error) {
+    console.error("Error retrieving secret:", error);
+    throw error;
+  }
+}
