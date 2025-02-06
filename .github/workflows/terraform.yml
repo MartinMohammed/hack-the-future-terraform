@@ -6,7 +6,7 @@ on:
     paths:
       - "**/*.tf"
       - "**/*.tfvars"
-      - "src/**/**/sr*.ts"
+      - "src/**/**/src/*.ts"
       - ".github/workflows/terraform.yml"
   pull_request:
     branches: ["main"]
