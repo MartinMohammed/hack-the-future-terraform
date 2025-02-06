@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "tariff_handler" {
   function_name = "tariff_handler"
-  filename      = "src/tariff_handler.zip"
+  filename      = "src/handlers/tariff_handler.zip"
 
   handler     = "index.handler"
   runtime     = "nodejs18.x"

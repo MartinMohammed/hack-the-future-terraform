@@ -46,11 +46,10 @@ jobs:
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      - name: Build Lambda Functions
+      - name: Build Lambda Functions and Layers
         run: |
-          # Make script executable and run it
-          chmod +x ./build-lambdas.sh
-          ./build-lambdas.sh
+          chmod +x ./build-lambdas-and-layers.sh
+          ./build-lambdas-and-layers.sh
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
