@@ -90,7 +90,26 @@ resource "aws_lambda_permission" "trigger_tariff_handler_permission" {
 # ---------------------------------------------------------------------------------------------------------------------
 # bonis handler
 # ---------------------------------------------------------------------------------------------------------------------
+# forward requests to the lambda function
+resource "aws_apigatewayv2_integration" "bonis_handler" {
+  api_id = aws_apigatewayv2_api.main.id
 
+  integration_type = "AWS_PROXY"
+  integration_uri  = aws_lambda_function.bonis_handler.invoke_arn
+}
 
+resource "aws_apigatewayv2_route" "bonis_handler" {
+  api_id = aws_apigatewayv2_api.main.id
+  # allow all http methods
+  route_key = "GET /bonis"
+  target    = "integrations/${aws_apigatewayv2_integration.bonis_handler.id}"
+}
 
-
+# allows api gateway to execute to invoke the lambda function
+resource "aws_lambda_permission" "trigger_bonis_handler_permission" {
+  statement_id  = "AllowExecutionFromHackTheFutureBnetzAPI"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.bonis_handler.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
+}
