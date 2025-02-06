@@ -87,6 +87,13 @@ export const handler = async (event: any): Promise<any> => {
     }
     console.log("Using limit parameter:", limitNumber);
     limitClause = `LIMIT ${limitNumber}`;
+  } else {
+    const defaultLimit = 100; // Default fallback limit value
+    console.log(
+      "No limit parameter provided, using default limit:",
+      defaultLimit
+    );
+    limitClause = `LIMIT ${defaultLimit}`;
   }
 
   // Build the SQL query dynamically using the provided values (or SQL NULL if not provided)

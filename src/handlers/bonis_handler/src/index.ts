@@ -60,6 +60,13 @@ export const handler = async (event: any): Promise<any> => {
     }
     console.log("Using limit parameter:", limitNumber);
     limitClause = `LIMIT ${limitNumber}`;
+  } else {
+    const defaultLimit = 100; // Default fallback limit value
+    console.log(
+      "No limit parameter provided, using default limit:",
+      defaultLimit
+    );
+    limitClause = `LIMIT ${defaultLimit}`;
   }
 
   // Prepare SQL literal for tariff_id. Default to "NULL"
