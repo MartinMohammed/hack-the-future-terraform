@@ -138,20 +138,9 @@ resource "aws_iam_role_policy_attachment" "handler_lambda_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-# inline policy for read access to snowflake secret in secrets manager
-resource "aws_iam_role_policy" "snowflake_secret_manager_policy" {
-  name = "snowflake-secret-manager-policy"
-  role = aws_iam_role.handler_lambda_exec.name
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "secretsmanager:GetSecretValue"
-        ]
-        Resource = "arn:aws:secretsmanager:${var.aws_region}:${data.aws_caller_identity.current.account_id}:secret:${aws_secretsmanager_secret.snowflake_secret.name}"
-      }
-    ]
-  })
+# attachment for aws managed read and write access to secrets manager
+resource "aws_iam_role_policy_attachment" "snowflake_secret_manager_policy" {
+  role       = aws_iam_role.handler_lambda_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
 }
+
