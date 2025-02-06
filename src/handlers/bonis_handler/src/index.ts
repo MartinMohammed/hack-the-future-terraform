@@ -92,26 +92,29 @@ export const handler = async (event: any): Promise<any> => {
 
   // Prepare the SQL query dynamically using the provided tariff ID.
   // It will use a filter when a valid tariff ID is provided, or get all rows (NULL)
-  const sql = `WITH test_values AS (
-    SELECT 
+  const sql = `
+    WITH test_values AS (
+      SELECT 
         ${tariffIdSqlLiteral} AS tariff_id  -- Set this to a specific ID to filter, or NULL to get all
-)
-SELECT 
-    t.TARIFF_ID, 
-    t.TARIFF_NAME, 
-    b.BONUS_NAME, 
-    b.BONUS_VALUE, 
-    bd.BONUS_DURATION 
-FROM DDS.DDS_SCHEMA.TARIFFS t
-LEFT JOIN DDS.DDS_SCHEMA.TARIFF_WITH_BONUSES tb 
-    ON t.TARIFF_ID = tb.TARIFF_ID
-LEFT JOIN DDS.DDS_SCHEMA.BONUSES b 
-    ON tb.BONUS_ID = b.BONUS_ID
-LEFT JOIN DDS.DDS_SCHEMA.BONUS_DURATION bd 
-    ON b.BONUS_DURATION_ID = bd.BONUS_DURATION_ID
-JOIN test_values tv 
-    ON (tv.tariff_id IS NULL OR t.TARIFF_ID = tv.tariff_id) -- Optional filtering
-ORDER BY t.TARIFF_ID, b.BONUS_NAME;`;
+    )
+    SELECT 
+      t.TARIFF_ID, 
+      t.TARIFF_NAME, 
+      b.BONUS_NAME, 
+      b.BONUS_VALUE, 
+      bd.BONUS_DURATION 
+    FROM DDS.DDS_SCHEMA.TARIFFS t
+    INNER JOIN DDS.DDS_SCHEMA.TARIFF_WITH_BONUSES tb 
+      ON t.TARIFF_ID = tb.TARIFF_ID
+    INNER JOIN DDS.DDS_SCHEMA.BONUSES b 
+      ON tb.BONUS_ID = b.BONUS_ID
+    INNER JOIN DDS.DDS_SCHEMA.BONUS_DURATION bd 
+      ON b.BONUS_DURATION_ID = bd.BONUS_DURATION_ID
+    JOIN test_values tv 
+      ON (tv.tariff_id IS NULL OR t.TARIFF_ID = tv.tariff_id) -- Optional filtering
+    ORDER BY t.TARIFF_ID, b.BONUS_NAME;
+  `;
+
   console.log("Prepared SQL query:");
   console.log(sql);
 
