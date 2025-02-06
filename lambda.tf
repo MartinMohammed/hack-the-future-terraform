@@ -1,7 +1,7 @@
-resource "aws_lambda_function" "tariff_handler" {
-  function_name = "tariff_handler"
+resource "aws_lambda_function" "tariffs_handler" {
+  function_name = "tariffs_handler"
   # use local file
-  filename = "${path.module}/dist/handlers/tariff_handler.zip"
+  filename = "${path.module}/dist/handlers/tariffs_handler.zip"
 
   handler     = "index.handler"
   runtime     = "nodejs18.x"
@@ -14,7 +14,7 @@ resource "aws_lambda_function" "tariff_handler" {
   }
 
 
-  source_code_hash = filebase64sha256("${path.module}/dist/handlers/tariff_handler.zip")
+  source_code_hash = filebase64sha256("${path.module}/dist/handlers/tariffs_handler.zip")
 
   layers = [
     aws_lambda_layer_version.lambda_utils_layer.arn

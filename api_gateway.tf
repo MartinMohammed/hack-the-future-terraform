@@ -33,26 +33,26 @@ resource "aws_apigatewayv2_stage" "dev" {
 
 
 # forward requests to the lambda function
-resource "aws_apigatewayv2_integration" "tariff_handler" {
+resource "aws_apigatewayv2_integration" "tariffs_handler" {
   api_id = aws_apigatewayv2_api.main.id
 
   integration_type = "AWS_PROXY"
-  integration_uri  = aws_lambda_function.tariff_handler.invoke_arn
+  integration_uri  = aws_lambda_function.tariffs_handler.invoke_arn
 }
 
-resource "aws_apigatewayv2_route" "tariff_handler" {
+resource "aws_apigatewayv2_route" "tariffs_handler" {
   api_id = aws_apigatewayv2_api.main.id
   # allow all http methodss
   route_key = "GET /tariffs"
 
-  target = "integrations/${aws_apigatewayv2_integration.tariff_handler.id}"
+  target = "integrations/${aws_apigatewayv2_integration.tariffs_handler.id}"
 }
 
 # allows api gateway to execute to invoke the lambda function
 resource "aws_lambda_permission" "api_gw" {
   statement_id  = "AllowExecutionFromHackTheFutureBnetzAPI"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.tariff_handler.function_name
+  function_name = aws_lambda_function.tariffs_handler.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
 }
