@@ -41,6 +41,9 @@ export const handler = async (event: any): Promise<any> => {
     console.error("Failed to retrieve secret:", err);
     return {
       statusCode: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ message: "Secret retrieval failed" }),
     };
   }
@@ -51,28 +54,32 @@ export const handler = async (event: any): Promise<any> => {
   const repo = new SnowflakeRepository(secret);
   console.log("SnowflakeRepository initialized for the handler.");
 
-  // Extract query parameters from the event (if provided)
+  // Extract query parameters from the event (if provided) and convert to SQL literal or NULL
+  // TODO: Sanitize the query parameters
   const qs = event.queryStringParameters || {};
-  // Use defaults if certain parameters are not provided
-  const date_collected = qs.date_collected || "2025-02-05";
-  const provider_name = qs.provider_name || "Telekom";
-  const provider_source = qs.provider_source || "www.telekom.de";
-  const connectivity_type = qs.connectivity_type || "dsl";
-  const street = qs.street || "Gabelsbergerstr. 51";
-  const city = qs.city || "München";
-  const zip = qs.zip || "80333";
+  const date_collected = qs.date_collected ? `'${qs.date_collected}'` : "NULL";
+  const provider_name = qs.provider_name ? `'${qs.provider_name}'` : "NULL";
+  const provider_source = qs.provider_source
+    ? `'${qs.provider_source}'`
+    : "NULL";
+  const connectivity_type = qs.connectivity_type
+    ? `'${qs.connectivity_type}'`
+    : "NULL";
+  const street = qs.street ? `'${qs.street}'` : "NULL";
+  const city = qs.city ? `'${qs.city}'` : "NULL";
+  const zip = qs.zip ? `'${qs.zip}'` : "NULL";
 
-  // Build the SQL query dynamically using provided or default values
+  // Build the SQL query dynamically using the provided values (or SQL NULL if not provided)
   const sql = `
 WITH test_values AS (
     SELECT 
-        '${date_collected}' AS date_collected,
-        '${provider_name}' AS provider_name,
-        '${provider_source}' AS provider_source,
-        '${connectivity_type}' AS connectivity_type,
-        '${street}' AS street,
-        '${city}' AS city,
-        '${zip}' AS zip
+        ${date_collected} AS date_collected,
+        ${provider_name} AS provider_name,
+        ${provider_source} AS provider_source,
+        ${connectivity_type} AS connectivity_type,
+        ${street} AS street,
+        ${city} AS city,
+        ${zip} AS zip
 )
 SELECT 
     t.TARIFF_ID,
@@ -118,12 +125,18 @@ ORDER BY t.TARIFF_ID;
     console.log("Query executed successfully. Rows: ", JSON.stringify(rows));
     return {
       statusCode: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(rows),
     };
   } catch (error) {
     console.error("Error executing query:", error);
     return {
       statusCode: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ message: "Internal Server Error" }),
     };
   }
