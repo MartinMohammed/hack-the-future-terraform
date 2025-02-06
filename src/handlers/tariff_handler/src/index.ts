@@ -67,7 +67,7 @@ export const handler = async (event: any): Promise<any> => {
       ")"
     );
   } catch (err) {
-    console.error("Failed to retrieve Snowflake secret:", err);
+    console.error("Error initiating secret retrieval:", err);
     return {
       statusCode: 500,
       headers: {

@@ -57,7 +57,6 @@ export const handler = async (event: any): Promise<any> => {
         statusCode: 400,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({ message: "Invalid tariff ID" }),
       };
@@ -82,7 +81,6 @@ export const handler = async (event: any): Promise<any> => {
       statusCode: 500,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({ message: "Secret retrieval failed" }),
     };
@@ -147,7 +145,6 @@ export const handler = async (event: any): Promise<any> => {
       statusCode: 200,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify(rows),
     };
@@ -167,7 +164,6 @@ export const handler = async (event: any): Promise<any> => {
       statusCode: 500,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({ message: "Internal Server Error" }),
     };
