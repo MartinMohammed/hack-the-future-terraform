@@ -70,6 +70,5 @@ resource "aws_apigatewayv2_route" "tariff_handler" {
   api_id = aws_apigatewayv2_api.main.id
   # allow all http methods
   route_key = "GET /tariff/{tariff_id}"
-
-  target = "integrations/${aws_apigatewayv2_integration.tariff_handler.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.tariff_handler.id}"
 }
