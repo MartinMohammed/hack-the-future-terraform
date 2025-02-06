@@ -79,3 +79,31 @@ resource "aws_lambda_function" "bonis_handler" {
 
   role = aws_iam_role.handler_lambda_exec.arn
 }
+
+# ---------------------------------------------------------------------------------------------------------------------
+# load_s3_data_to_snowflake handler
+# ---------------------------------------------------------------------------------------------------------------------
+resource "aws_lambda_function" "load_s3_data_to_snowflake" {
+  function_name = "load_s3_data_to_snowflake"
+  # use local file
+  filename = "${path.module}/dist/handlers/load_s3_data_to_snowflake.zip"
+
+  handler     = "index.handler"
+  runtime     = "nodejs18.x"
+  memory_size = 1024
+  timeout     = 300
+  environment {
+    variables = {
+      SNOWFLAKE_SECRET_NAME = aws_secretsmanager_secret.snowflake_secret.name
+    }
+  }
+
+  source_code_hash = filebase64sha256("${path.module}/dist/handlers/load_s3_data_to_snowflake.zip")
+
+  layers = [
+    aws_lambda_layer_version.lambda_utils_layer.arn
+  ]
+
+  role = aws_iam_role.handler_lambda_exec.arn
+}
+
