@@ -21,25 +21,17 @@ resource "aws_iam_role_policy" "mwaa_s3_policy" {
     ]
   })
 }
-
-# Create IAM inline policy for AWS Batch access
-resource "aws_iam_role_policy" "mwaa_batch_policy" {
-  name = "mwaa-batch-policy"
+resource "aws_iam_role_policy" "mwaa_lambda_invoke" {
+  name = "MWAA-LambdaInvokePolicy"
   role = module.mwaa.mwaa_role_name
 
   policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow"
-        Action = [
-          "batch:SubmitJob",
-          "batch:DescribeJobs",
-          "batch:TerminateJob",
-          "batch:ListJobs",
-          "batch:DescribeJobQueues",
-          "batch:DescribeJobDefinitions"
-        ]
+        Effect   = "Allow",
+        Sid      = "AllowLambdaInvoke",
+        Action   = "lambda:InvokeFunction",
         Resource = "*"
       }
     ]
