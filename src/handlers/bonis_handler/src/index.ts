@@ -40,7 +40,7 @@ export const handler = async (event: any): Promise<any> => {
   console.log("Event received:", JSON.stringify(event, null, 2));
 
   // Extract the tariff_id query parameter (if provided)
-  const tariffIdRaw = event.queryStringParameters?.tarrif_id;
+  const tariffIdRaw = event.queryStringParameters?.tariff_id;
   console.log("Tariff ID received from event:", tariffIdRaw);
 
   // Prepare SQL literal for tariff_id. Default to "NULL"
