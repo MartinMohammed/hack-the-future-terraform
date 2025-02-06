@@ -3,12 +3,15 @@ resource "aws_route53_zone" "therealfriends_zone" {
   name = "therealfriends.de"
 }
 
-# basically creates the NS records for the domain that we need to add to the registrar
-# points to the route53 zone for the domain
+# Create an alias record pointing to the CloudFront distribution using prod subdomain
 resource "aws_route53_record" "web_app_record" {
   zone_id = aws_route53_zone.therealfriends_zone.zone_id
-  name    = "therealfriends.de"
+  name    = "prod.therealfriends.de"
   type    = "A"
-  ttl     = "300"
-  records = [aws_cloudfront_distribution.web_app_distribution.domain_name]
+
+  alias {
+    name                   = aws_cloudfront_distribution.web_app_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.web_app_distribution.hosted_zone_id
+    evaluate_target_health = false
+  }
 }
