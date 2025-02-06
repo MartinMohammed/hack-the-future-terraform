@@ -27,14 +27,16 @@
 
     /* Modules */
     "module": "nodenext",
+    "moduleResolution": "nodenext",
 
     "baseUrl": ".",
     "paths": {
-      "/opt/nodejs/*": ["../../layers/util-layer/dist/*"]
+      "/opt/nodejs/*": ["../../layers/util-layer/dist/*"],
+      "shared_utils": ["/opt/nodejs/utils"]
     },
+    "typeRoots": ["./src/types", "./node_modules/@types"],
 
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
-    // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
     // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
