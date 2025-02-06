@@ -67,7 +67,7 @@ export const handler = async (event: any): Promise<any> => {
     };
   }
   const [loadYear, loadMonth, loadDay] = logicalDate.split("-");
-  const stagePath = `@hack_the_future_data_stage/staging/yyyy=${loadYear}/mm=${loadMonth}/dd=${loadDay}/telekom.json`;
+  const stagePath = `@DDS.PUBLIC.HACK_THE_FUTURE_DATA_STAGE/staging/yyyy=${loadYear}/mm=${loadMonth}/dd=${loadDay}/telekom.json`;
   console.log("Logical date from event:", logicalDate);
   console.log("Stage path set to:", stagePath);
 
