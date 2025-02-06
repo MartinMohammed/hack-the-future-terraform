@@ -7,6 +7,12 @@ const awsRegion = process.env.AWS_REGION;
 console.log(`Environment AWS_REGION: ${awsRegion}`);
 console.log(`Environment SNOWFLAKE_SECRET_NAME: ${snowflakeSecretName}`);
 
+if (!snowflakeSecretName) {
+  console.error(
+    "Error: SNOWFLAKE_SECRET_NAME environment variable is not set."
+  );
+}
+
 type SnowflakeSecret = {
   account: string;
   username: string;
@@ -33,12 +39,35 @@ export const handler = async (event: any): Promise<any> => {
   console.log("Handler invoked.");
   console.log("Event received:", JSON.stringify(event, null, 2));
 
+  // Check if pathParameters and tariff_id are provided
+  if (!event.pathParameters || !event.pathParameters.tariff_id) {
+    console.error(
+      "Tariff ID is missing in pathParameters:",
+      event.pathParameters
+    );
+    return {
+      statusCode: 400,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: "Tariff ID is required in path parameters.",
+      }),
+    };
+  }
+
   let secret: SnowflakeSecret;
   try {
+    console.log("Waiting for Snowflake secret retrieval...");
     // Wait for the secret to be retrieved when the handler is invoked.
     secret = await secretPromise;
+    console.log(
+      "Snowflake secret retrieved successfully. (Account:",
+      secret.account,
+      ")"
+    );
   } catch (err) {
-    console.error("Failed to retrieve secret:", err);
+    console.error("Failed to retrieve Snowflake secret:", err);
     return {
       statusCode: 500,
       headers: {
@@ -48,82 +77,47 @@ export const handler = async (event: any): Promise<any> => {
     };
   }
 
-  console.log("Snowflake secret retrieved successfully.");
+  // Read the tariff id from the path parameters
+  const tariffId = event.pathParameters.tariff_id;
+  console.log("Tariff ID received from event:", tariffId);
 
-  // Initialize (or reinitialize) SnowflakeRepository with the secret
+  // Check whether the tariff ID can be converted to a valid number
+  const tariffIdNumber = Number(tariffId);
+  if (isNaN(tariffIdNumber)) {
+    console.error("Invalid tariff ID provided. Not a valid number:", tariffId);
+    return {
+      statusCode: 400,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: "Invalid tariff ID" }),
+    };
+  }
+  console.log("Converted Tariff ID to number:", tariffIdNumber);
+
+  // Initialize SnowflakeRepository with the secret
   const repo = new SnowflakeRepository(secret);
   console.log("SnowflakeRepository initialized for the handler.");
 
-  // Extract query parameters from the event (if provided) and convert to SQL literal or NULL
-  // TODO: Sanitize the query parameters
-  // TODO: Validate the query parameters
-  const qs = event.queryStringParameters || {};
-  const date_collected = qs.date_collected ? `'${qs.date_collected}'` : "NULL";
-  const provider_name = qs.provider_name ? `'${qs.provider_name}'` : "NULL";
-  const provider_source = qs.provider_source
-    ? `'${qs.provider_source}'`
-    : "NULL";
-  const connectivity_type = qs.connectivity_type
-    ? `'${qs.connectivity_type}'`
-    : "NULL";
-  const street = qs.street ? `'${qs.street}'` : "NULL";
-  const city = qs.city ? `'${qs.city}'` : "NULL";
-  const zip = qs.zip ? `'${qs.zip}'` : "NULL";
-
-  // Build the SQL query dynamically using the provided values (or SQL NULL if not provided)
+  // Prepare the SQL query dynamically using the provided tariff ID
   const sql = `
-WITH test_values AS (
-    SELECT 
-        ${date_collected} AS date_collected,
-        ${provider_name} AS provider_name,
-        ${provider_source} AS provider_source,
-        ${connectivity_type} AS connectivity_type,
-        ${street} AS street,
-        ${city} AS city,
-        ${zip} AS zip
-)
-SELECT 
-    t.TARIFF_ID,
-    t.TARIFF_NAME,
-    t.NOMINAL_PRICE,
-    t.DISCOUNTED_PRICE,
-    t.CONTRACT_DURATION,
-    t.UPLOAD_RATE,
-    t.DOWNLOAD_RATE,
-    p.PROVIDER_NAME,
-    p.PROVIDER_SOURCE,
-    c.CONNECTIVITY_NAME,
-    a.STREET,
-    a.CITY,
-    a.ZIP,
-    o.DATE_COLLECTED
-FROM DDS.DDS_SCHEMA.TARIFFS t
-JOIN DDS.DDS_SCHEMA.PROVIDERS p
-    ON t.PROVIDER_ID = p.PROVIDER_ID
-JOIN DDS.DDS_SCHEMA.CONNECTIVITY_TYPES c
-    ON t.CONNECTIVITY_ID = c.CONNECTIVITY_ID
-JOIN DDS.DDS_SCHEMA.OFFER o
-    ON t.TARIFF_ID = o.TARIFF_ID
-JOIN DDS.DDS_SCHEMA.ADDRESSES a
-    ON o.ADDRESS_ID = a.ADDRESS_ID
-JOIN test_values tv
-    ON (COALESCE(tv.date_collected, o.DATE_COLLECTED) = o.DATE_COLLECTED)
-    AND (COALESCE(tv.provider_name, p.PROVIDER_NAME) = p.PROVIDER_NAME)
-    AND (COALESCE(tv.provider_source, p.PROVIDER_SOURCE) = p.PROVIDER_SOURCE)
-    AND (COALESCE(tv.connectivity_type, c.CONNECTIVITY_NAME) = c.CONNECTIVITY_NAME)
-    AND (COALESCE(tv.street, a.STREET) = a.STREET)
-    AND (COALESCE(tv.city, a.CITY) = a.CITY)
-    AND (COALESCE(tv.zip, a.ZIP) = a.ZIP)
-ORDER BY t.TARIFF_ID;
+    SELECT * FROM tariff_data t
+    WHERE t.TARRIF_ID = ${tariffIdNumber}
   `;
-
-  console.log("Executing Snowflake query:");
+  console.log("Prepared SQL query:");
   console.log(sql);
 
   try {
+    console.log("Connecting to Snowflake...");
     await repo.connect();
+    console.log("Connected to Snowflake successfully.");
+
+    console.log("Executing query...");
     const rows = await repo.executeQuery(sql);
-    console.log("Query executed successfully. Rows: ", JSON.stringify(rows));
+    console.log(
+      "Query executed successfully. Rows received:",
+      JSON.stringify(rows)
+    );
 
     try {
       // Attempt to disconnect from Snowflake after successful query
@@ -144,7 +138,7 @@ ORDER BY t.TARIFF_ID;
       body: JSON.stringify(rows),
     };
   } catch (error) {
-    console.error("Error executing query:", error);
+    console.error("Error during query execution:", error);
     try {
       // Try disconnecting even if an error occurs
       await repo.disconnect();
