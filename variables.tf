@@ -25,3 +25,9 @@ variable "availability_zones" {
   type        = list(string)
   default     = ["us-west-2a", "us-west-2b"]
 }
+
+variable "snowflake_stage_ref" {
+  description = "Snowflake stage reference"
+  type        = string
+  default     = "DDS.PUBLIC.HACK_THE_FUTURE_DATA_STAGE"
+}

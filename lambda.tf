@@ -95,6 +95,7 @@ resource "aws_lambda_function" "load_s3_data_to_snowflake" {
   environment {
     variables = {
       SNOWFLAKE_SECRET_NAME = aws_secretsmanager_secret.snowflake_secret.name
+      SNOWFLAKE_STAGE_REF   = var.snowflake_stage_ref
     }
   }
 

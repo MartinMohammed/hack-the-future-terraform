@@ -2,6 +2,7 @@
 import { SnowflakeRepository, getSecret } from "shared_utils"; // ensure 'shared_utils' is available (or add a declaration file)
 
 const snowflakeSecretName = process.env.SNOWFLAKE_SECRET_NAME;
+const snowflakeStageRef = process.env.SNOWFLAKE_STAGE_REF;
 const awsRegion = process.env.AWS_REGION;
 
 console.log(`Environment AWS_REGION: ${awsRegion}`);
@@ -67,7 +68,7 @@ export const handler = async (event: any): Promise<any> => {
     };
   }
   const [loadYear, loadMonth, loadDay] = logicalDate.split("-");
-  const stagePath = `@DDS.PUBLIC.HACK_THE_FUTURE_DATA_STAGE/staging/yyyy=${loadYear}/mm=${loadMonth}/dd=${loadDay}/telekom.json`;
+  const stagePath = `${snowflakeStageRef}/staging/yyyy=${loadYear}/mm=${loadMonth}/dd=${loadDay}`;
   console.log("Logical date from event:", logicalDate);
   console.log("Stage path set to:", stagePath);
 
