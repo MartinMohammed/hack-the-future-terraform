@@ -138,21 +138,23 @@ resource "aws_iam_role_policy_attachment" "snowflake_secret_manager_policy" {
 }
 
 
-# You need to integrate with a CDN (like CloudFront) which relies on public access to pull content from your bucket.
-# extract the policy and create dedicated aws_iam_policy_document
-data "aws_iam_policy_document" "web_app_bucket_policy" {
+data "aws_iam_policy_document" "s3_bucket_policy" {
   statement {
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
     actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.web_app_bucket.arn}/**"]
+    resources = ["${aws_s3_bucket.web_app_bucket.arn}/*"]
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.web_app_distribution.arn]
+    }
   }
 }
 
-resource "aws_s3_bucket_policy" "web_app_bucket_policy" {
+resource "aws_s3_bucket_policy" "static_site_bucket_policy" {
   bucket = aws_s3_bucket.web_app_bucket.id
-  policy = data.aws_iam_policy_document.web_app_bucket_policy.json
+  policy = data.aws_iam_policy_document.s3_bucket_policy.json
 }
-

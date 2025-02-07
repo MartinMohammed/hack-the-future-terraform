@@ -47,6 +47,10 @@ resource "aws_s3_bucket_website_configuration" "web_app_bucket" {
   index_document {
     suffix = "index.html"
   }
+
+  error_document {
+    key = "error.html"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "web_app_bucket" {
