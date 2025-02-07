@@ -53,14 +53,14 @@ resource "aws_s3_bucket_website_configuration" "web_app_bucket" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "web_app_bucket" {
-  bucket = aws_s3_bucket.web_app_bucket.id
+# resource "aws_s3_bucket_public_access_block" "web_app_bucket" {
+#   bucket = aws_s3_bucket.web_app_bucket.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
+#   block_public_acls       = false
+#   block_public_policy     = false
+#   ignore_public_acls      = false
+#   restrict_public_buckets = false
+# }
 
 
 
