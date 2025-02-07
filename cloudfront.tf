@@ -48,9 +48,3 @@ resource "aws_cloudfront_distribution" "web_app_distribution" {
   }
 
 }
-
-# Create an origin access identity for the web app distribution
-resource "aws_cloudfront_origin_access_identity" "web_app_origin_access_identity" {
-  comment = "Origin Access Identity for ${aws_s3_bucket.web_app_bucket.bucket}"
-}
-
