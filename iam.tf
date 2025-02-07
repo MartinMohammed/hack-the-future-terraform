@@ -138,23 +138,22 @@ resource "aws_iam_role_policy_attachment" "snowflake_secret_manager_policy" {
 }
 
 
-data "aws_iam_policy_document" "s3_bucket_policy" {
-  statement {
-    actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.web_app_bucket.arn}/*"]
-    principals {
-      type        = "Service"
-      identifiers = ["cloudfront.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.web_app_distribution.arn]
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "static_site_bucket_policy" {
+//add bucket policy
+resource "aws_s3_bucket_policy" "web_app_bucket_policy" {
   bucket = aws_s3_bucket.web_app_bucket.id
-  policy = data.aws_iam_policy_document.s3_bucket_policy.json
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowGetObj",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::${aws_s3_bucket.web_app_bucket.id}/*"
+    }
+  ]
+}
+POLICY
 }

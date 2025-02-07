@@ -31,3 +31,10 @@ variable "snowflake_stage_ref" {
   type        = string
   default     = "@DDS.PUBLIC.HACK_THE_FUTURE_DATA_STAGE"
 }
+
+variable "domain" {
+  description = "Domain name"
+  type        = string
+  default     = "prod.therealfriends.de"
+}
+
