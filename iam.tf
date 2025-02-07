@@ -138,7 +138,7 @@ resource "aws_iam_role_policy_attachment" "snowflake_secret_manager_policy" {
 }
 
 
-//add bucket policy
+#add bucket policy
 resource "aws_s3_bucket_policy" "web_app_bucket_policy" {
   bucket = aws_s3_bucket.web_app_bucket.id
 
@@ -156,4 +156,6 @@ resource "aws_s3_bucket_policy" "web_app_bucket_policy" {
   ]
 }
 POLICY
+
+  depends_on = [aws_s3_bucket.web_app_bucket]
 }
