@@ -38,4 +38,10 @@ provider "aws" {
   }
 }
 
+// New provider configuration for resources that must be in us-east-1 (CloudFront ACM certificate)
+provider "aws" {
+  region = "us-east-1" // CloudFront requires ACM certificate to be in us-east-1
+  alias  = "us_east"
+}
+
 
