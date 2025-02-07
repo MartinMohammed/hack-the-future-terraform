@@ -12,7 +12,7 @@ resource "aws_cloudfront_distribution" "web_app_distribution" {
   default_root_object = "index.html"
 
   origin {
-    domain_name              = data.aws_s3_bucket.selected_bucket.bucket_regional_domain_name
+    domain_name              = aws_s3_bucket.web_app_bucket.bucket_regional_domain_name
     origin_id                = aws_s3_bucket.web_app_bucket.id
     origin_access_control_id = aws_cloudfront_origin_access_control.cf-s3-oac.id
   }
